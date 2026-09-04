@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tablero de Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fondo: #ffffff;
+    --superficie: #ffffff;
+    --texto: #1a1d21;
+    --texto-suave: #5c6470;
+    --borde: #e3e6ea;
+    --borde-hover: #c9ced5;
+    --gris-fondo: #f3f4f6;
+    --pendiente: #9aa1ab;
+    /* Colores de acento por marca */
+    --camping44: #1f5f3b;
+    --camping44-suave: #e8f2ec;
+    --vitalica: #1e5aa8;
+    --vitalica-suave: #e7eef9;
+    --radio: 14px;
+    --sombra: 0 1px 2px rgba(16, 24, 40, .05);
+    --sombra-hover: 0 10px 28px rgba(16, 24, 40, .12);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { font-size: clamp(16px, 0.5vw + 14px, 19px); }
+
+  body {
+    margin: 0;
+    background: var(--fondo);
+    color: var(--texto);
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- Encabezado ---------- */
+  header {
+    border-bottom: 1px solid var(--borde);
+    background: var(--fondo);
+  }
+  .contenedor {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 clamp(16px, 3vw, 40px);
+  }
+  .encabezado {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 24px;
+    padding: 28px 0 22px;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(1.7rem, 2.6vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .actualizado {
+    margin: 0;
+    color: var(--texto-suave);
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  /* ---------- Pestañas por marca ---------- */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 22px;
+    border-bottom: 2px solid var(--borde);
+  }
+  .tab {
+    appearance: none;
+    background: none;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    padding: 12px 18px;
+    font: inherit;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--texto-suave);
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    transition: color .15s, background .15s;
+  }
+  .tab:hover { color: var(--texto); background: var(--gris-fondo); }
+  .tab.activa { color: var(--acento, var(--texto)); border-bottom-color: var(--acento, var(--texto)); }
+
+  /* ---------- Buscador y chips ---------- */
+  .herramientas {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 22px 0 10px;
+  }
+  .buscador {
+    position: relative;
+  }
+  .buscador svg {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    color: var(--texto-suave);
+    pointer-events: none;
+  }
+  .buscador input {
+    width: 100%;
+    padding: 15px 18px 15px 50px;
+    font: inherit;
+    font-size: 1.1rem;
+    border: 1.5px solid var(--borde);
+    border-radius: var(--radio);
+    background: var(--superficie);
+    color: var(--texto);
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .buscador input:focus {
+    border-color: var(--texto-suave);
+    box-shadow: 0 0 0 4px rgba(16, 24, 40, .06);
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    appearance: none;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1.5px solid var(--borde);
+    background: var(--superficie);
+    color: var(--texto-suave);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .chip:hover { border-color: var(--borde-hover); color: var(--texto); }
+  .chip.activa { background: var(--texto); border-color: var(--texto); color: #fff; }
+
+  .contador {
+    margin: 6px 0 18px;
+    color: var(--texto-suave);
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  /* ---------- Secciones ---------- */
+  .marca {
+    margin: 10px 0 44px;
+  }
+  .marca-encabezado {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    border-bottom: 3px solid var(--acento);
+  }
+  .marca-logo {
+    height: 56px;
+    width: auto;
+    max-width: 200px;
+    object-fit: contain;
+  }
+  .marca-nombre {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--acento);
+    letter-spacing: -0.01em;
+  }
+  .marca-nombre.oculto { display: none; }
+  .unidad {
+    margin: 0 0 14px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .grupo-unidad { margin-bottom: 30px; }
+  .grupo-unidad:last-child { margin-bottom: 0; }
+
+  /* ---------- Grid y tarjetas ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+  @media (max-width: 1000px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 620px)  { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+  .tarjeta {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px 22px;
+    background: var(--superficie);
+    border: 1.5px solid var(--borde);
+    border-left: 6px solid var(--acento);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra);
+    color: inherit;
+    text-decoration: none;
+    min-height: 118px;
+    min-width: 0;
+    position: relative;
+    transition: transform .15s, box-shadow .15s, border-color .15s;
+  }
+  .tarjeta:hover, .tarjeta:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: var(--sombra-hover);
+    border-color: var(--acento);
+    outline: none;
+  }
+  .tarjeta-icono {
+    font-size: 2.1rem;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: var(--acento-suave);
+  }
+  .tarjeta-cuerpo { min-width: 0; flex: 1; }
+  .tarjeta-titulo {
+    margin: 0 0 4px;
+    padding-right: 22px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.25;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .tarjeta-desc {
+    margin: 0 0 10px;
+    color: var(--texto-suave);
+    font-size: 0.98rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tarjeta-categoria {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--gris-fondo);
+    color: var(--texto-suave);
+  }
+  .tarjeta-flecha {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    color: var(--borde-hover);
+    font-size: 1.3rem;
+    transition: color .15s, transform .15s;
+  }
+  .tarjeta:hover .tarjeta-flecha { color: var(--acento); transform: translateX(3px); }
+
+  /* Tarjeta sin URL (pendiente) */
+  .tarjeta.pendiente {
+    cursor: not-allowed;
+    border-left-color: var(--pendiente);
+    background: #fafafa;
+    color: var(--pendiente);
+    box-shadow: none;
+  }
+  .tarjeta.pendiente:hover { transform: none; box-shadow: none; border-color: var(--borde); border-left-color: var(--pendiente); }
+  .tarjeta.pendiente .tarjeta-icono { background: var(--gris-fondo); filter: grayscale(1); opacity: .6; }
+  .tarjeta.pendiente .tarjeta-desc,
+  .tarjeta.pendiente .tarjeta-categoria { color: var(--pendiente); }
+  .tarjeta.pendiente .tarjeta-flecha { display: none; }
+  .etiqueta-pendiente {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 3px 9px;
+    border-radius: 6px;
+    background: #ececef;
+    color: #6b727c;
+  }
+
+  /* ---------- Estado vacío ---------- */
+  .vacio {
+    text-align: center;
+    padding: 64px 20px;
+    color: var(--texto-suave);
+    border: 2px dashed var(--borde);
+    border-radius: var(--radio);
+    margin-bottom: 40px;
+  }
+  .vacio strong { display: block; font-size: 1.4rem; color: var(--texto); margin-bottom: 6px; }
+
+  footer {
+    padding: 20px 0 40px;
+    color: var(--texto-suave);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="contenedor encabezado">
+    <h1>Tablero de Marketing</h1>
+    <p class="actualizado">Última actualización: <span id="fecha"></span></p>
+  </div>
+</header>
+
+<main class="contenedor">
+  <nav class="tabs" id="tabs" aria-label="Marcas"></nav>
+
+  <div class="herramientas">
+    <div class="buscador">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="buscador" type="search" placeholder="Buscar por título, descripción o categoría…" autocomplete="off">
+    </div>
+    <div class="chips" id="chips" aria-label="Filtrar por categoría"></div>
+  </div>
+
+  <p class="contador" id="contador"></p>
+
+  <div id="contenido"></div>
+
+  <div class="vacio" id="vacio" hidden>
+    <strong>Sin resultados</strong>
+    Probá con otra palabra o quitá el filtro de categoría.
+  </div>
+</main>
+
+<footer>Marketing · Camping44 · Vitalica</footer>
+
+<script>
+/* =====================================================================
+   EDITÁ SOLO ESTA PARTE
+   ---------------------------------------------------------------------
+   - Para agregar un recurso: copiá una línea, pegala y cambiá los datos.
+   - marca:   "Camping44" o "Vitalica"
+   - unidad:  "Outdoors", "Armería" o "General"
+   - url:     dejala como "" si todavía no hay link (queda "Pendiente")
+   - icono:   cualquier emoji
+   ===================================================================== */
+
+const ULTIMA_ACTUALIZACION = "04/09/2026";
+
+// Logos: archivos de imagen que van en la misma carpeta que este HTML.
+// Si el archivo no existe, se muestra el nombre de la marca en su lugar.
+const LOGOS = {
+  Camping44: "logo-camping44.png",
+  Vitalica:  "logo-vitalica.png",
+};
+
+const RECURSOS = [
+  // ---- CAMPING 44 ----
+  { marca: "Camping44", unidad: "General",  titulo: "Presupuesto de Marketing", descripcion: "Planilla de presupuesto anual y ejecución mensual", url: "https://docs.google.com/spreadsheets/d/1Da7QOoQQClgyc5D_6B6VT9q9xpFv0AIK/edit?gid=698478767#gid=698478767", categoria: "Finanzas", icono: "💰" },
+  { marca: "Camping44", unidad: "General",  titulo: "Campañas de MKT",          descripcion: "Presentación con las campañas de marketing", url: "https://docs.google.com/presentation/d/1W-lRfJJvMovAZy9EvsAF0otLkns_WhInYzEUQcPxJkY/edit?slide=id.g3f73f3e63c3_0_199#slide=id.g3f73f3e63c3_0_199", categoria: "Campañas", icono: "📣" },
+  { marca: "Camping44", unidad: "General",  titulo: "Informes de MKT",          descripcion: "Presentación de informes del área", url: "https://docs.google.com/presentation/d/16FnturjO7g4SYEYHyztdGeHDtXX1ANdJWB6xXTGlVK8/edit?slide=id.p1#slide=id.p1", categoria: "Informes", icono: "📝" },
+  { marca: "Camping44", unidad: "General",  titulo: "Pautas",                   descripcion: "Planilla de pautas publicitarias", url: "https://docs.google.com/spreadsheets/d/1JinDRLoDp5QH0t-GmI4B5adqZDzQGW5PxrPmk2Rdlxk/edit?gid=649387614#gid=649387614", categoria: "Pautas", icono: "🎯" },
+  { marca: "Camping44", unidad: "General",  titulo: "Leads CRM",                descripcion: "Reportes de leads en el CRM", url: "https://crm.neuralgenius.tech/reports", categoria: "Clientes", icono: "🧲" },
+  { marca: "Camping44", unidad: "General",  titulo: "Google Analytics",         descripcion: "Analytics | Informe panorámico de la web", url: "https://analytics.google.com/analytics/web/?authuser=0#/a334188430p464557791/reports/reportinghub?params=_u..nav%3Dmaui%26_u.comparisonOption%3Ddisabled%26_u.date00%3D20260801%26_u.date01%3D20260831", categoria: "Web", icono: "🌐" },
+  { marca: "Camping44", unidad: "Outdoors", titulo: "NPS",                      descripcion: "Presentación de resultados de NPS", url: "https://ti-camping44.github.io/NPS-REPORTE/", categoria: "Clientes", icono: "📊" },
+  { marca: "Camping44", unidad: "Armería",  titulo: "Redes Sociales",           descripcion: "Insights de Instagram de Armería (Meta Business)", url: "https://business.facebook.com/latest/insights/results?business_id=1314606353908289&asset_id=1106877979169229&time_range=%257B%2522end%2522%253A%25222026-08-31%2522%252C%2522start%2522%253A%25222026-08-01%2522%257D&platform=Instagram", categoria: "Redes", icono: "📱" },
+
+  // ---- VITALICA ----
+  { marca: "Vitalica", unidad: "General", titulo: "Redes Sociales",                    descripcion: "Planilla de seguimiento de redes sociales", url: "https://docs.google.com/spreadsheets/d/16AnFl9KY7voY4SA06TV37p1_jd0lynhk/edit?pli=1&gid=1309375580#gid=1309375580", categoria: "Redes", icono: "📱" },
+  { marca: "Vitalica", unidad: "General", titulo: "Web",                               descripcion: "Google Analytics de la web de Vitalica", url: "https://analytics.google.com/analytics/web/?authuser=0#/a384780653p524954337/reports/reportinghub?params=_u..nav%3Dmaui", categoria: "Web", icono: "🌐" },
+  { marca: "Vitalica", unidad: "General", titulo: "Pautas",                            descripcion: "Planilla de pautas publicitarias", url: "https://docs.google.com/spreadsheets/d/1JinDRLoDp5QH0t-GmI4B5adqZDzQGW5PxrPmk2Rdlxk/edit?gid=1464448927#gid=1464448927", categoria: "Pautas", icono: "🎯" },
+  { marca: "Vitalica", unidad: "General", titulo: "Calendario de Eventos y Activaciones", descripcion: "Presentación con el calendario de eventos y activaciones", url: "https://docs.google.com/presentation/d/1FUcAi2wzziH4X365sl9Aj5cyfgcUSUoZViTaPFk0pQI/edit?slide=id.p1#slide=id.p1", categoria: "Eventos", icono: "📅" },
+  { marca: "Vitalica", unidad: "General", titulo: "Nutricionistas",                    descripcion: "Planilla de nutricionistas aliados", url: "https://docs.google.com/spreadsheets/d/1S2pvmMCrKQxpnVuH45I6_ewV5sFhAFGI10Lq42k97ns/edit?usp=drive_link", categoria: "Alianzas", icono: "🥗" },
+  { marca: "Vitalica", unidad: "General", titulo: "Embajadores",                       descripcion: "Planilla de embajadores de la marca", url: "https://docs.google.com/spreadsheets/d/1hDB5D4Nos-KLqMCsumAFbONObKFyflbGII_pR43v7_Q/edit?usp=sharing", categoria: "Alianzas", icono: "🤝" },
+];
+
+/* ============ FIN DE LA PARTE EDITABLE (de acá para abajo no hace falta tocar) ============ */
+
+
+// Orden y color de cada marca. Si agregás una marca nueva, sumala acá con su color.
+const MARCAS = {
+  Camping44: { nombre: "Camping44", acento: "var(--camping44)", suave: "var(--camping44-suave)" },
+  Vitalica:  { nombre: "Vitalica",  acento: "var(--vitalica)",  suave: "var(--vitalica-suave)"  },
+};
+const ORDEN_UNIDADES = ["General", "Outdoors", "Armería"];
+const TAB_TODAS = "Todas";
+
+// Estado de la interfaz
+let marcaActiva = TAB_TODAS;
+let categoriaActiva = null;
+let textoBusqueda = "";
+
+const $ = (id) => document.getElementById(id);
+
+// Quita acentos y pasa a minúsculas para buscar sin importar tildes
+const normalizar = (s) => (s || "").toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+function recursosDeMarca(marca) {
+  return marca === TAB_TODAS ? RECURSOS : RECURSOS.filter(r => r.marca === marca);
+}
+
+function pasaFiltros(r) {
+  if (categoriaActiva && r.categoria !== categoriaActiva) return false;
+  if (!textoBusqueda) return true;
+  const q = normalizar(textoBusqueda);
+  return [r.titulo, r.descripcion, r.categoria, r.unidad, r.marca].some(campo => normalizar(campo).includes(q));
+}
+
+function ordenUnidad(u) {
+  const i = ORDEN_UNIDADES.indexOf(u);
+  return i === -1 ? 99 : i;
+}
+
+// ---------- Pestañas ----------
+function renderTabs() {
+  const cont = $("tabs");
+  cont.innerHTML = "";
+  const marcasPresentes = Object.keys(MARCAS).filter(m => RECURSOS.some(r => r.marca === m));
+  [TAB_TODAS, ...marcasPresentes].forEach(m => {
+    const b = document.createElement("button");
+    b.className = "tab" + (m === marcaActiva ? " activa" : "");
+    b.textContent = m === TAB_TODAS ? "Todas" : MARCAS[m].nombre;
+    if (m !== TAB_TODAS) b.style.setProperty("--acento", MARCAS[m].acento);
+    b.addEventListener("click", () => {
+      marcaActiva = m;
+      renderTabs();
+      renderChips();
+      renderContenido();
+    });
+    cont.appendChild(b);
+  });
+}
+
+// ---------- Chips de categoría (se generan solas a partir de RECURSOS) ----------
+function renderChips() {
+  const cont = $("chips");
+  cont.innerHTML = "";
+  const categorias = [...new Set(recursosDeMarca(marcaActiva).map(r => r.categoria).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "es"));
+  if (categoriaActiva && !categorias.includes(categoriaActiva)) categoriaActiva = null;
+
+  const crearChip = (etiqueta, valor) => {
+    const b = document.createElement("button");
+    b.className = "chip" + (categoriaActiva === valor ? " activa" : "");
+    b.textContent = etiqueta;
+    b.addEventListener("click", () => {
+      categoriaActiva = valor;
+      renderChips();
+      renderContenido();
+    });
+    cont.appendChild(b);
+  };
+  crearChip("Todas las categorías", null);
+  categorias.forEach(c => crearChip(c, c));
+}
+
+// ---------- Tarjetas ----------
+function crearTarjeta(r) {
+  const marca = MARCAS[r.marca] || { acento: "var(--texto)", suave: "var(--gris-fondo)" };
+  const pendiente = !r.url || !r.url.trim();
+
+  const el = document.createElement(pendiente ? "div" : "a");
+  el.className = "tarjeta" + (pendiente ? " pendiente" : "");
+  el.style.setProperty("--acento", marca.acento);
+  el.style.setProperty("--acento-suave", marca.suave);
+  if (pendiente) {
+    el.setAttribute("aria-disabled", "true");
+    el.title = "Link pendiente";
+  } else {
+    el.href = r.url.trim();
+    el.target = "_blank";
+    el.rel = "noopener";
+  }
+
+  const icono = document.createElement("div");
+  icono.className = "tarjeta-icono";
+  icono.textContent = r.icono || "🔗";
+
+  const cuerpo = document.createElement("div");
+  cuerpo.className = "tarjeta-cuerpo";
+
+  const titulo = document.createElement("h3");
+  titulo.className = "tarjeta-titulo";
+  titulo.textContent = r.titulo || "(sin título)";
+  if (pendiente) {
+    const tag = document.createElement("span");
+    tag.className = "etiqueta-pendiente";
+    tag.textContent = "Pendiente";
+    titulo.appendChild(tag);
+  }
+
+  const desc = document.createElement("p");
+  desc.className = "tarjeta-desc";
+  desc.textContent = r.descripcion || "";
+  desc.title = r.descripcion || "";
+
+  const cat = document.createElement("span");
+  cat.className = "tarjeta-categoria";
+  cat.textContent = r.categoria || "Sin categoría";
+
+  cuerpo.append(titulo, desc, cat);
+
+  const flecha = document.createElement("span");
+  flecha.className = "tarjeta-flecha";
+  flecha.setAttribute("aria-hidden", "true");
+  flecha.textContent = "↗";
+
+  el.append(icono, cuerpo, flecha);
+  return el;
+}
+
+// ---------- Secciones por marca y unidad ----------
+function crearSeccionMarca(clave, recursos) {
+  const marca = MARCAS[clave] || { nombre: clave, acento: "var(--texto)" };
+  const sec = document.createElement("section");
+  sec.className = "marca";
+  sec.style.setProperty("--acento", marca.acento);
+
+  // Encabezado con logo (o nombre si el logo no está)
+  const enc = document.createElement("div");
+  enc.className = "marca-encabezado";
+  const nombre = document.createElement("h2");
+  nombre.className = "marca-nombre";
+  nombre.textContent = marca.nombre;
+  if (LOGOS[clave]) {
+    const img = document.createElement("img");
+    img.className = "marca-logo";
+    img.src = LOGOS[clave];
+    img.alt = marca.nombre;
+    img.addEventListener("load", () => nombre.classList.add("oculto"));
+    img.addEventListener("error", () => img.remove());
+    enc.appendChild(img);
+  }
+  enc.appendChild(nombre);
+  sec.appendChild(enc);
+
+  // Agrupar por unidad (General / Outdoors / Armería)
+  const unidades = [...new Set(recursos.map(r => r.unidad || "General"))].sort((a, b) => ordenUnidad(a) - ordenUnidad(b));
+  const mostrarTituloUnidad = unidades.length > 1 || unidades[0] !== "General";
+
+  unidades.forEach(u => {
+    const grupo = document.createElement("div");
+    grupo.className = "grupo-unidad";
+    if (mostrarTituloUnidad) {
+      const h = document.createElement("h3");
+      h.className = "unidad";
+      h.textContent = u;
+      grupo.appendChild(h);
+    }
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    recursos.filter(r => (r.unidad || "General") === u).forEach(r => grid.appendChild(crearTarjeta(r)));
+    grupo.appendChild(grid);
+    sec.appendChild(grupo);
+  });
+
+  return sec;
+}
+
+function renderContenido() {
+  const cont = $("contenido");
+  cont.innerHTML = "";
+
+  const base = recursosDeMarca(marcaActiva);
+  const visibles = base.filter(pasaFiltros);
+
+  $("contador").textContent = `Mostrando ${visibles.length} de ${base.length} recursos`;
+  $("vacio").hidden = visibles.length > 0;
+
+  const marcasAMostrar = marcaActiva === TAB_TODAS ? Object.keys(MARCAS) : [marcaActiva];
+  marcasAMostrar.forEach(m => {
+    const lista = visibles.filter(r => r.marca === m);
+    if (lista.length) cont.appendChild(crearSeccionMarca(m, lista));
+  });
+
+  // Marcas que están en RECURSOS pero no en MARCAS (por si se agrega una nueva sin color)
+  const desconocidas = [...new Set(visibles.map(r => r.marca))].filter(m => !MARCAS[m]);
+  desconocidas.forEach(m => cont.appendChild(crearSeccionMarca(m, visibles.filter(r => r.marca === m))));
+}
+
+// ---------- Inicio ----------
+$("fecha").textContent = ULTIMA_ACTUALIZACION;
+$("buscador").addEventListener("input", (e) => {
+  textoBusqueda = e.target.value.trim();
+  renderContenido();
+});
+renderTabs();
+renderChips();
+renderContenido();
+</script>
+</body>
+</html>
