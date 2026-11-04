@@ -289,6 +289,48 @@
   .tarjeta.pendiente .tarjeta-desc,
   .tarjeta.pendiente .tarjeta-categoria { color: var(--pendiente); }
   .tarjeta.pendiente .tarjeta-flecha { display: none; }
+
+  /* Tarjeta con varios botones */
+  .tarjeta.multiple:hover { transform: none; }
+  .tarjeta-botones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 2px 0 12px;
+  }
+  .boton {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    white-space: nowrap;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #fff;
+    background: var(--acento);
+    border: 1.5px solid var(--acento);
+    transition: filter .15s, transform .15s;
+  }
+  .boton:hover, .boton:focus-visible { filter: brightness(1.15); transform: translateY(-1px); outline: none; }
+  .boton.pendiente {
+    background: var(--gris-fondo);
+    border-color: var(--borde);
+    color: var(--pendiente);
+    cursor: not-allowed;
+  }
+  .boton.pendiente:hover { filter: none; transform: none; }
+  .boton-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: #e4e6ea;
+    color: #6b727c;
+  }
   .etiqueta-pendiente {
     font-size: 0.75rem;
     font-weight: 700;
@@ -360,9 +402,13 @@
    - unidad:  "Outdoors", "Armería" o "General"
    - url:     dejala como "" si todavía no hay link (queda "Pendiente")
    - icono:   cualquier emoji
+   - enlaces: (opcional) para una tarjeta con varios botones. Ejemplo:
+              enlaces: [ { texto: "CRM", url: "https://..." },
+                         { texto: "Analista de leads", url: "" } ]
+              Si un botón no tiene url, se muestra como "Pendiente".
    ===================================================================== */
 
-const ULTIMA_ACTUALIZACION = "15/10/2026";
+const ULTIMA_ACTUALIZACION = "04/11/2026";
 
 // Logos: nombres exactos de los archivos de imagen que están en la misma carpeta que este HTML.
 // Si el archivo no existe, se muestra el nombre de la marca en su lugar.
@@ -377,7 +423,11 @@ const RECURSOS = [
   { marca: "Camping44", unidad: "General",  titulo: "Campañas de MKT",          descripcion: "Presentación con las campañas de marketing", url: "https://docs.google.com/presentation/d/1W-lRfJJvMovAZy9EvsAF0otLkns_WhInYzEUQcPxJkY/edit?slide=id.g3f73f3e63c3_0_199#slide=id.g3f73f3e63c3_0_199", categoria: "Campañas", icono: "📣" },
   { marca: "Camping44", unidad: "General",  titulo: "Informes de MKT",          descripcion: "Presentación de informes del área", url: "https://docs.google.com/presentation/d/12RNKmLmhWdN-BJdGI_fjE_IM0Z44JqTGKKFgdFPQuXM/edit?slide=id.h4538acf1cd0604c1_0_0#slide=id.h4538acf1cd0604c1_0_0", categoria: "Informes", icono: "📝" },
   { marca: "Camping44", unidad: "General",  titulo: "Pautas",                   descripcion: "Planilla de pautas publicitarias", url: "https://docs.google.com/spreadsheets/d/1JinDRLoDp5QH0t-GmI4B5adqZDzQGW5PxrPmk2Rdlxk/edit?gid=649387614#gid=649387614", categoria: "Pautas", icono: "🎯" },
-  { marca: "Camping44", unidad: "General",  titulo: "Leads CRM",                descripcion: "Reportes de leads en el CRM", url: "https://crm.neuralgenius.tech/reports", categoria: "Clientes", icono: "🧲" },
+  { marca: "Camping44", unidad: "General",  titulo: "Control de leads",         descripcion: "CRM y análisis mensual de leads", categoria: "Clientes", icono: "🧲",
+    enlaces: [
+      { texto: "CRM",               url: "https://crm.neuralgenius.tech/reports" },
+      { texto: "Analista de leads", url: "" },
+    ] },
   { marca: "Camping44", unidad: "General",  titulo: "Google Analytics",         descripcion: "Analytics | Informe panorámico de la web", url: "https://analytics.google.com/analytics/web/?authuser=0#/a334188430p464557791/reports/reportinghub?params=_u..nav%3Dmaui%26_u.comparisonOption%3Ddisabled%26_u.date00%3D20260801%26_u.date01%3D20260831", categoria: "Web", icono: "🌐" },
   { marca: "Camping44", unidad: "General",  titulo: "Redes Sociales",           descripcion: "Planilla de seguimiento de redes sociales", url: "https://docs.google.com/spreadsheets/d/1biCnwfvbNdKg3sbmZNInMZEvwcp2uQQuqOSOUi0dWnk/edit?gid=1326433033#gid=1326433033", categoria: "Redes", icono: "📱" },
   { marca: "Camping44", unidad: "General",  titulo: "Plan de posteos",          descripcion: "Presentación con el plan de posteos para redes", url: "https://docs.google.com/presentation/d/1PS79713M6NwMleFLIwNZelzDqQ35cNck/edit?slide=id.g3f8cc12bb2b_0_20#slide=id.g3f8cc12bb2b_0_20", categoria: "Redes", icono: "🗓️" },
@@ -423,7 +473,8 @@ function pasaFiltros(r) {
   if (categoriaActiva && r.categoria !== categoriaActiva) return false;
   if (!textoBusqueda) return true;
   const q = normalizar(textoBusqueda);
-  return [r.titulo, r.descripcion, r.categoria, r.unidad, r.marca].some(campo => normalizar(campo).includes(q));
+  const textosBotones = (r.enlaces || []).map(e => e.texto);
+  return [r.titulo, r.descripcion, r.categoria, r.unidad, r.marca, ...textosBotones].some(campo => normalizar(campo).includes(q));
 }
 
 function ordenUnidad(u) {
@@ -477,6 +528,7 @@ function renderChips() {
 // ---------- Tarjetas ----------
 function crearTarjeta(r) {
   const marca = MARCAS[r.marca] || { acento: "var(--texto)", suave: "var(--gris-fondo)" };
+  if (Array.isArray(r.enlaces) && r.enlaces.length) return crearTarjetaMultiple(r, marca);
   const pendiente = !r.url || !r.url.trim();
 
   const el = document.createElement(pendiente ? "div" : "a");
@@ -526,6 +578,61 @@ function crearTarjeta(r) {
   flecha.textContent = "↗";
 
   el.append(icono, cuerpo, flecha);
+  return el;
+}
+
+// Tarjeta con varios botones (cuando el recurso tiene "enlaces")
+function crearTarjetaMultiple(r, marca) {
+  const el = document.createElement("div");
+  el.className = "tarjeta multiple";
+  el.style.setProperty("--acento", marca.acento);
+  el.style.setProperty("--acento-suave", marca.suave);
+
+  const icono = document.createElement("div");
+  icono.className = "tarjeta-icono";
+  icono.textContent = r.icono || "🔗";
+
+  const cuerpo = document.createElement("div");
+  cuerpo.className = "tarjeta-cuerpo";
+
+  const titulo = document.createElement("h3");
+  titulo.className = "tarjeta-titulo";
+  titulo.textContent = r.titulo || "(sin título)";
+
+  const desc = document.createElement("p");
+  desc.className = "tarjeta-desc";
+  desc.textContent = r.descripcion || "";
+  desc.title = r.descripcion || "";
+
+  const botones = document.createElement("div");
+  botones.className = "tarjeta-botones";
+  r.enlaces.forEach(e => {
+    const url = (e.url || "").trim();
+    const b = document.createElement(url ? "a" : "span");
+    b.className = "boton" + (url ? "" : " pendiente");
+    if (url) {
+      b.href = url;
+      b.target = "_blank";
+      b.rel = "noopener";
+      b.textContent = (e.texto || "Abrir") + " ↗";
+    } else {
+      b.setAttribute("aria-disabled", "true");
+      b.title = "Link pendiente";
+      b.textContent = e.texto || "Abrir";
+      const tag = document.createElement("span");
+      tag.className = "boton-tag";
+      tag.textContent = "Pendiente";
+      b.appendChild(tag);
+    }
+    botones.appendChild(b);
+  });
+
+  const cat = document.createElement("span");
+  cat.className = "tarjeta-categoria";
+  cat.textContent = r.categoria || "Sin categoría";
+
+  cuerpo.append(titulo, desc, botones, cat);
+  el.append(icono, cuerpo);
   return el;
 }
 
